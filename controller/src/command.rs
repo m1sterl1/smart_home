@@ -6,14 +6,16 @@ type Result<T> = std::result::Result<T, String>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Command {
-    TurnOn { id: String },
-    TurnOff { id: String },
-    GetState { id: String },
+    SocketTurnOn { id: String },
+    SocketTurnOff { id: String },
+    SocketGetState { id: String },
+    ThermGetAddress { id: String }, // Get thermometer udp socket address
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum CommandResponse {
-    TurnOn(Result<()>),
-    TurnOff(Result<()>),
-    GetState(Result<String>),
+    SocketTurnOn(Result<()>),
+    SocketTurnOff(Result<()>),
+    SocketGetState(Result<String>),
+    ThermGetAddress(Result<String>),
 }
