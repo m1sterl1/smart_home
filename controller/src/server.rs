@@ -9,13 +9,13 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 /// Server (Controller) for sockets, single threaded
 /// contains socket devices
-pub struct SocketServer {
+pub struct Controller {
     server: StpServer,
     // Socket storage <id, socket_device>
     storage: RefCell<HashMap<String, Socket>>,
 }
 
-impl SocketServer {
+impl Controller {
     /// Creates new instance with internal StpServer
     /// which binds to address `a`
     pub fn new<A: ToSocketAddrs>(a: A) -> Result<Self> {

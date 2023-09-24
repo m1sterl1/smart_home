@@ -3,12 +3,12 @@ use std::{
     time::Duration,
 };
 
-use controller::{client::SocketCLient, command::CommandResponse, server::SocketServer};
+use controller::{client::SocketCLient, command::CommandResponse, server::Controller};
 
 const ADDR: &str = "127.0.0.1:10221";
 
 fn run_server(addr: &str) {
-    let mut server = SocketServer::new(addr).unwrap();
+    let mut server = Controller::new(addr).unwrap();
     server.add_socket("First");
     match server.listen() {
         Err(e) => println!("{e}"),
