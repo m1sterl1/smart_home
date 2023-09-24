@@ -1,4 +1,4 @@
-use socket::server::SocketServer;
+use controller::server::SocketServer;
 
 fn main() {
     // Create SocetServer

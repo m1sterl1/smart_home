@@ -1,4 +1,4 @@
-use socket::client::SocketCLient;
+use controller::client::SocketCLient;
 
 fn main() {
     // Create client

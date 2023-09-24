@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use socket::{client::SocketCLient, command::CommandResponse, server::SocketServer};
+use controller::{client::SocketCLient, command::CommandResponse, server::SocketServer};
 
 const ADDR: &str = "127.0.0.1:10221";
 
