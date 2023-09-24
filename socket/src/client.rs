@@ -30,7 +30,7 @@ impl SocketCLient{
 
     /// Turn off socket device with `id`
     pub fn turn_off(&mut self, id: &str) -> Result<CommandResponse>{
-        let command = Command::TurnOn { id: id.to_string() };
+        let command = Command::TurnOff { id: id.to_string() };
         self.send_command(command)
     }
 

@@ -12,7 +12,7 @@ pub enum Command{
     GetState{id: String},
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum CommandResponse{
     TurnOn(Result<()>),
     TurnOff(Result<()>),
