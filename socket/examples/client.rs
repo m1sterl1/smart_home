@@ -1,6 +1,6 @@
 use socket::client::SocketCLient;
 
-fn main(){
+fn main() {
     // Create client
     let mut client = SocketCLient::new("127.0.0.1:10221").unwrap();
     // Turn on "First" socket
