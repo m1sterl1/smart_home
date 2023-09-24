@@ -8,12 +8,9 @@ use controller::{client::SocketCLient, command::CommandResponse, server::Control
 const ADDR: &str = "127.0.0.1:10221";
 
 fn run_server(addr: &str) {
-    let mut server = Controller::new(addr).unwrap();
+    let server = Controller::new(addr).unwrap();
     server.add_socket("First");
-    match server.listen() {
-        Err(e) => println!("{e}"),
-        _ => {}
-    }
+    server.listen()
 }
 
 #[test]
@@ -22,18 +19,18 @@ fn main() {
     spawn(|| run_server(ADDR));
     sleep(Duration::from_secs(1));
 
-    // Create clinet
+    // Create client
     let mut client = SocketCLient::new(ADDR).unwrap();
 
     // Turn on
     let response = client.turn_on("First").unwrap();
-    assert_eq!(response, CommandResponse::TurnOn(Ok(())));
+    assert_eq!(response, CommandResponse::SocketTurnOn(Ok(())));
 
     // Get state
     let response = client.get_state("First").unwrap();
     // compare only beginning of messages (message from server contains random value)
     match response {
-        CommandResponse::GetState(Ok(s)) => assert!(s.starts_with("State: on, power consumption")),
+        CommandResponse::SocketGetState(Ok(s)) => assert!(s.starts_with("State: on, power consumption")),
         _ => assert!(false),
     }
 
@@ -41,7 +38,7 @@ fn main() {
     let response = client.get_state("Second").unwrap();
     assert_eq!(
         response,
-        CommandResponse::GetState(Err("No socket".to_string()))
+        CommandResponse::SocketGetState(Err("No socket".to_string()))
     );
 
     // Turn off socket and get state
@@ -49,6 +46,6 @@ fn main() {
     let response = client.get_state("First").unwrap();
     assert_eq!(
         response,
-        CommandResponse::GetState(Ok("State: off, power consumption 0.0W".to_string()))
+        CommandResponse::SocketGetState(Ok("State: off, power consumption 0.0W".to_string()))
     );
 }

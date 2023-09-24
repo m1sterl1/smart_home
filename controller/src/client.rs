@@ -23,19 +23,19 @@ impl SocketCLient {
 
     /// Turn on socket device with `id`
     pub fn turn_on(&mut self, id: &str) -> Result<CommandResponse> {
-        let command = Command::TurnOn { id: id.to_string() };
+        let command = Command::SocketTurnOn { id: id.to_string() };
         self.send_command(command)
     }
 
     /// Turn off socket device with `id`
     pub fn turn_off(&mut self, id: &str) -> Result<CommandResponse> {
-        let command = Command::TurnOff { id: id.to_string() };
+        let command = Command::SocketTurnOff { id: id.to_string() };
         self.send_command(command)
     }
 
     /// Get state of socket device with `id`
     pub fn get_state(&mut self, id: &str) -> Result<CommandResponse> {
-        let command = Command::GetState { id: id.to_string() };
+        let command = Command::SocketGetState { id: id.to_string() };
         self.send_command(command)
     }
 
