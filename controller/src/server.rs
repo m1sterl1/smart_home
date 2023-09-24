@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, error::Error, net::ToSocketAddrs};
 
-use smart_home::devices::Socket;
+use smart_home::devices::{Socket, Thermometer};
 use stp::server::StpServer;
 
 use crate::command::{Command, CommandResponse};
@@ -12,7 +12,9 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 pub struct Controller {
     server: StpServer,
     // Socket storage <id, socket_device>
-    storage: RefCell<HashMap<String, Socket>>,
+    socket_storage: RefCell<HashMap<String, Socket>>,
+    // Thermometer storage
+    therm_storage: RefCell<HashMap<String, Thermometer>>
 }
 
 impl Controller {
@@ -20,16 +22,25 @@ impl Controller {
     /// which binds to address `a`
     pub fn new<A: ToSocketAddrs>(a: A) -> Result<Self> {
         let server = StpServer::bind(a)?;
-        let storage = RefCell::new(HashMap::default());
-        Ok(Self { server, storage })
+        let socket_storage = RefCell::new(HashMap::default());
+        let therm_storage = RefCell::new(HashMap::default());
+        Ok(Self { server, socket_storage, therm_storage })
     }
 
     /// Creates new socket device with `id`
-    /// and add it to server storage
+    /// and add it to server storage, overwrite if exists
     pub fn add_socket(&self, id: &str) {
-        self.storage
+        self.socket_storage
             .borrow_mut()
             .insert(id.to_string(), Socket::new(id));
+    }
+
+    /// Creates new thermometer device with `id`
+    /// and add it to server storage, overwrite if exists
+    pub fn add_thermometer(&self, id: &str) {
+        self.therm_storage
+            .borrow_mut()
+            .insert(id.to_string(), Thermometer::new(id));
     }
 
     /// Listen to incoming connections (single theaded)
@@ -65,7 +76,7 @@ impl Controller {
     }
 
     fn turn_on(&self, id: &str) -> Result<()> {
-        let mut storage = self.storage.borrow_mut();
+        let mut storage = self.socket_storage.borrow_mut();
         let socket = storage.get_mut(id).ok_or("No socket")?;
         Ok(socket.turn_on()?)
     }
@@ -77,7 +88,7 @@ impl Controller {
     }
 
     fn turn_off(&self, id: &str) -> Result<()> {
-        let mut storage = self.storage.borrow_mut();
+        let mut storage = self.socket_storage.borrow_mut();
         let socket = storage.get_mut(id).ok_or("No socket")?;
         Ok(socket.turn_off()?)
     }
@@ -89,7 +100,7 @@ impl Controller {
     }
 
     fn get_state(&self, id: &str) -> Result<String> {
-        let mut storage = self.storage.borrow_mut();
+        let mut storage = self.socket_storage.borrow_mut();
         let socket = storage.get_mut(id).ok_or("No socket")?;
         Ok(socket.to_string())
     }
