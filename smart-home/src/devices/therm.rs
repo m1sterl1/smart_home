@@ -9,7 +9,6 @@ pub struct Thermometer {
     state: ThermometerState, // state
 }
 
-
 impl Thermometer {
     pub fn new(id: &str) -> Self {
         Self {
@@ -18,7 +17,7 @@ impl Thermometer {
         }
     }
     /// id getter
-    pub fn id(&self) -> &str{
+    pub fn id(&self) -> &str {
         &self.id
     }
     pub fn turn_on(&mut self) -> Result<()> {
@@ -73,7 +72,6 @@ impl Display for ThermometerError {
 }
 
 impl Error for ThermometerError {}
-
 
 #[cfg(test)]
 mod tests {

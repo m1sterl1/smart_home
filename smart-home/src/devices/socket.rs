@@ -5,7 +5,7 @@ use super::utils::RandomValue;
 type Result<T> = std::result::Result<T, SocketError>;
 
 pub struct Socket {
-    id: String,       // description
+    id: String,         // description
     state: SocketState, // current state
 }
 
@@ -18,7 +18,7 @@ impl Socket {
         }
     }
     /// id getter
-    pub fn id(&self) -> &str{
+    pub fn id(&self) -> &str {
         &self.id
     }
     /// Turn socket on
