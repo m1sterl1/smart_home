@@ -5,15 +5,27 @@ use serde::{Deserialize, Serialize};
 type Result<T> = std::result::Result<T, String>;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub enum CommandRequest {
-    SocketTurnOn { id: String },
-    SocketTurnOff { id: String },
-    SocketGetState { id: String },
-    ThermGetTemp { id: String }, // Get thermometer udp socket address
+pub struct CommandRequest{
+    id: String,
+    request: RequestType,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum RequestType {
+    SocketTurnOn,
+    SocketTurnOff,
+    SocketGetState,
+    ThermGetTemp, // Get thermometer udp socket address
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub enum CommandResponse {
+pub struct CommandResponse{
+    id: String,
+    response: ResponseType
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub enum ResponseType {
     SocketTurnOn(Result<()>),
     SocketTurnOff(Result<()>),
     SocketGetState(Result<String>),
@@ -36,20 +48,31 @@ impl CommandRequestBuilder{
 
 impl SocketRequestBuilder<'_>{
     pub fn turn_on(self) -> CommandRequest{
-        CommandRequest::SocketTurnOn { id: self.0.to_string() }
+        CommandRequest{
+            id:self.0.to_string(),
+            request: RequestType::SocketTurnOn
+        }
     }
     pub fn turn_off(self) -> CommandRequest{
-        CommandRequest::SocketTurnOff { id: self.0.to_string() }
+        CommandRequest{
+            id:self.0.to_string(),
+            request: RequestType::SocketTurnOff
+        }
     }
     pub fn get_state(self) -> CommandRequest{
-        CommandRequest::SocketGetState { id: self.0.to_string() }
+        CommandRequest{
+            id:self.0.to_string(),
+            request: RequestType::SocketGetState
+        }
     }
 }
 
 impl ThermRequestBuilder<'_>{
     pub fn get_temp(self) -> CommandRequest{
-        CommandRequest::ThermGetTemp { id: self.0.to_string() }
-    }
+        CommandRequest{
+            id:self.0.to_string(),
+            request: RequestType::ThermGetTemp
+        }    }
 }
 
 impl CommandRequest{
