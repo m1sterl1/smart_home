@@ -1,13 +1,29 @@
 /// Commands and Responses for SocketClient and SocketServer
 /// serialized and deserialized with serde_json
+use crate::Result;
 use serde::{Deserialize, Serialize};
 
-type Result<T> = std::result::Result<T, String>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CommandRequest{
     id: String,
     request: RequestType,
+}
+
+impl CommandRequest{
+
+    pub fn request_from(buf: &[u8]) -> Result<CommandRequest>{
+        let req:CommandRequest = serde_json::from_slice(buf)?;
+        Ok(req)
+    }
+
+    /// id getter
+    pub fn id(&self) -> &str{
+        &self.id
+    }
+    pub fn req_type(&self) -> &RequestType{
+        &self.request
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -24,12 +40,23 @@ pub struct CommandResponse{
     response: ResponseType
 }
 
+impl CommandResponse{
+    pub fn new(id: &str, response: ResponseType) -> Self{
+        Self { id:id.to_string(), response }
+    }
+}
+
+impl From<CommandResponse> for Vec<u8>{
+    fn from(value: CommandResponse) -> Self {
+        serde_json::to_vec(&value).unwrap()
+    }
+}
+
+
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum ResponseType {
-    SocketTurnOn(Result<()>),
-    SocketTurnOff(Result<()>),
-    SocketGetState(Result<String>),
-    ThermGetTemp(Result<String>),
+    Success(String),
+    Err(String),
 }
 
 pub struct CommandRequestBuilder;

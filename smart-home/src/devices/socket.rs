@@ -17,6 +17,10 @@ impl Socket {
             state: SocketState::Off,
         }
     }
+    /// id getter
+    pub fn id(&self) -> &str{
+        &self.id
+    }
     /// Turn socket on
     pub fn turn_on(&mut self) -> Result<()> {
         self.state = SocketState::On;

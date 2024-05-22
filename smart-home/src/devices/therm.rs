@@ -17,6 +17,10 @@ impl Thermometer {
             state: ThermometerState::Off,
         }
     }
+    /// id getter
+    pub fn id(&self) -> &str{
+        &self.id
+    }
     pub fn turn_on(&mut self) -> Result<()> {
         self.state = ThermometerState::On;
         Ok(())
