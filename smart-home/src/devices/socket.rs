@@ -2,51 +2,18 @@ use std::{error::Error, fmt::Display};
 
 use super::utils::RandomValue;
 
-#[derive(Debug)]
-pub enum SocketError {
-    // Different error types
-}
-
-impl Display for SocketError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Socket error")
-    }
-}
-
-impl Error for SocketError {}
-
 type Result<T> = std::result::Result<T, SocketError>;
 
-pub enum SocketState {
-    On,
-    Off,
-}
-impl Display for SocketState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let state = match self {
-            SocketState::On => "State: on",
-            SocketState::Off => "State: off",
-        };
-        write!(f, "{}", state)
-    }
-}
-
 pub struct Socket {
-    desc: String,       // description
+    id: String,       // description
     state: SocketState, // current state
-}
-
-impl RandomValue for Socket {
-    type Value = f32;
-    const LOW: f32 = 20.;
-    const MAX: f32 = 1000.;
 }
 
 impl Socket {
     pub fn new(desc: &str) -> Self {
         // Random basic value of power consumption
         Self {
-            desc: desc.to_string(),
+            id: desc.to_string(),
             state: SocketState::Off,
         }
     }
@@ -60,7 +27,6 @@ impl Socket {
         self.state = SocketState::Off;
         Ok(())
     }
-
     /// Returns current power consumption (emulation)
     pub fn power_consuption(&self) -> f32 {
         match self.state {
@@ -81,6 +47,40 @@ impl Display for Socket {
         )
     }
 }
+
+impl RandomValue for Socket {
+    type Value = f32;
+    const LOW: f32 = 20.;
+    const MAX: f32 = 1000.;
+}
+
+pub enum SocketState {
+    On,
+    Off,
+}
+
+impl Display for SocketState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let state = match self {
+            SocketState::On => "State: on",
+            SocketState::Off => "State: off",
+        };
+        write!(f, "{}", state)
+    }
+}
+
+#[derive(Debug)]
+pub enum SocketError {
+    // Different error types
+}
+
+impl Display for SocketError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Socket error")
+    }
+}
+
+impl Error for SocketError {}
 
 #[cfg(test)]
 mod tests {

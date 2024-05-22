@@ -38,9 +38,7 @@ fn start() -> Result<()> {
     let mut socket1 = Socket::new("Smart Socket v1.0");
     socket1.turn_on()?;
     let socket2 = Socket::new("Smart Socket v1.0");
-    let thermo = Thermometer {
-        state: ThermometerState::On,
-    };
+    let thermo = Thermometer::new("Thermometer v1.0") ;
 
     //////// SmartHome initialization ////////
     let mut home = SmartHome::new("City home");
