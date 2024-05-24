@@ -6,7 +6,7 @@ use network::{
     Result,
 };
 use smart_home::devices::*;
-use std::thread;
+use std::{thread, time::Duration};
 
 /// Send command with client, get and print response
 fn send<C: Client>(client: &mut C, command: CommandRequest) -> Result<()> {
@@ -28,8 +28,9 @@ fn run() -> Result<()> {
     for _ in 0..5 {
         send(
             &mut udp_client,
-            CommandRequest::builder().socket("s1001").get_state(),
+            CommandRequest::builder().therm("t1000").get_temp(),
         )?;
+        thread::sleep(Duration::from_secs(1));
     }
 
     Ok(())
