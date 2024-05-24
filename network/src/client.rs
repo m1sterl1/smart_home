@@ -1,5 +1,4 @@
 /// Module provides Client trait and Clients for TCP and UDP protocols
-
 use std::{
     io::{Read, Write},
     net::{TcpStream, ToSocketAddrs, UdpSocket},

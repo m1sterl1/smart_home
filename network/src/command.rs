@@ -1,6 +1,5 @@
 /// Module provides CommandRequest and CommandResponse structures
 /// serialized and deserialized with serde_json
-
 use crate::Result;
 use serde::{Deserialize, Serialize};
 
