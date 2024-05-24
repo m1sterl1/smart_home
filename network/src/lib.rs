@@ -2,6 +2,7 @@ use std::error::Error;
 
 pub mod command;
 mod device;
+pub mod client;
 pub mod transport;
 pub mod network_device;
 

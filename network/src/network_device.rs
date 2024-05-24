@@ -2,15 +2,15 @@ use std::cell::RefMut;
 use std::net::ToSocketAddrs;
 use std::sync::{Arc, RwLock};
 
-use crate::transport::listener::{Listener, SharedDevice};
+use crate::transport::{Transport, SharedDevice};
 use crate::{Result, device::Device};
 
-pub struct NetworkDevice<L:Listener>{
+pub struct NetworkDevice<L:Transport>{
     listener: L,
     device: SharedDevice,
 }
 
-impl<L:Listener> NetworkDevice<L>{
+impl<L:Transport> NetworkDevice<L>{
     pub fn new<A:ToSocketAddrs, D: Device + Send + Sync + 'static>(device: D, addr: A) -> Result<Self>{
         let listener = L::new(addr)?;
         let device = Arc::new(RwLock::new(device)) as SharedDevice;
