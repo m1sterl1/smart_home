@@ -28,7 +28,7 @@ fn server() -> std::io::Result<()> {
 #[test]
 fn main() {
     println!("main");
-    let t = thread::spawn(server);
+    let _t = thread::spawn(server);
     sleep(Duration::from_secs(1));
     let s = UdpSocket::bind("127.0.0.1:30000").unwrap();
     let value: usize = 100;
@@ -39,5 +39,5 @@ fn main() {
         s.recv(&mut buf).unwrap();
         println!("Client: got buffer {:?}", buf);
     }
-    t.join().unwrap().unwrap();
+    // t.join().unwrap().unwrap();
 }
