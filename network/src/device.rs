@@ -9,7 +9,7 @@ pub trait Device {
 impl Device for Socket {
     fn process(&mut self, request: CommandRequest) -> CommandResponse {
         let response_type = if self.id() != request.id() {
-            ResponseType::Err("Requested is not matched".into())
+            ResponseType::Err("Id is not matched".into())
         } else {
             match request.req_type() {
                 RequestType::SocketGetState => ResponseType::Success(self.to_string()),

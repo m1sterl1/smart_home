@@ -1,8 +1,9 @@
 use std::error::Error;
 
-mod command;
+pub mod command;
 mod device;
-mod transport;
+pub mod transport;
+pub mod network_device;
 
 pub type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 pub const BUFLEN: usize = 1024;

@@ -10,23 +10,27 @@ use crate::{
     Result, BUFLEN,
 };
 
-type NetworkDevice = Arc<RwLock<dyn Device>>;
+pub type SharedDevice = Arc<RwLock<dyn Device + Send + Sync>>;
+
+/// Clue for UDP and TCP sockets
+/// Each socket could receive CommandRequest, redirect it to NetworkDevice
+/// and send CommandResponse back
+pub trait Listener:Sized {
+    fn new<A:ToSocketAddrs>(addr: A) -> Result<Self>;
+    fn listen(&self, device: SharedDevice) -> Result<()>;
+}
 
 /// Single threaded listener
 /// One time connection: each client could use connection
 /// only once
-struct TCPListener {
+pub struct TCPListener {
     listener: TcpListener,
 }
 
 impl TCPListener {
-    pub fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
-        let listener = TcpListener::bind(addr)?;
-        Ok(Self { listener })
-    }
 
     /// Handle "one time" connection
-    fn handle(mut con: TcpStream, device: NetworkDevice) -> Result<()> {
+    fn handle(mut con: TcpStream, device: SharedDevice) -> Result<()> {
         // receive CommandRequest
         let request = Self::receive(&mut con)?;
         // obtain NetworkDevice
@@ -55,15 +59,26 @@ impl TCPListener {
     }
 }
 
-struct UDPListener {
+impl Listener for TCPListener {
+    fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
+        let listener = TcpListener::bind(addr)?;
+        Ok(Self { listener })
+    }
+    fn listen(&self, device: SharedDevice) -> Result<()> {
+        for con in self.listener.incoming() {
+            let con = con?;
+            Self::handle(con, device.clone())?;
+        }
+        Ok(())
+    }
+}
+
+pub struct UDPListener {
     socket: UdpSocket,
 }
 
 impl UDPListener {
-    pub fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
-        let socket = UdpSocket::bind(addr)?;
-        Ok(Self { socket })
-    }
+
     // Receive CommandRequest from socket
     fn receive(&self) -> Result<(SocketAddr, CommandRequest)> {
         let mut buf = vec![0u8; BUFLEN];
@@ -79,7 +94,7 @@ impl UDPListener {
         Ok(())
     }
 
-    fn handle(&self, device: NetworkDevice) -> Result<()> {
+    fn handle(&self, device: SharedDevice) -> Result<()> {
         let (addr, request) = self.receive()?;
         let mut device = device.write().unwrap();
         let response = device.process(request);
@@ -88,25 +103,14 @@ impl UDPListener {
     }
 }
 
-/// Clue for UDP and TCP sockets
-/// Each socket could receive CommandRequest, redirect it to NetworkDevice
-/// and send CommandResponse back
-trait Listener {
-    fn listen(&self, device: NetworkDevice) -> Result<()>;
-}
 
-impl Listener for TCPListener {
-    fn listen(&self, device: NetworkDevice) -> Result<()> {
-        for con in self.listener.incoming() {
-            let con = con?;
-            Self::handle(con, device.clone())?;
-        }
-        Ok(())
-    }
-}
 
 impl Listener for UDPListener {
-    fn listen(&self, device: NetworkDevice) -> Result<()> {
+    fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
+        let socket = UdpSocket::bind(addr)?;
+        Ok(Self { socket })
+    }
+    fn listen(&self, device: SharedDevice) -> Result<()> {
         loop {
             self.handle(device.clone())?;
         }
@@ -127,8 +131,7 @@ mod tests {
         let t = thread::spawn(move || listener.listen(device));
 
         let mut s = TCPClient::new("127.0.0.1:8008").unwrap();
-        s.send(CommandRequest::new().therm("123").get_temp())
-            .unwrap();
+        s.send(CommandRequest::new().therm("123").get_temp()).unwrap();
 
         let resp = s.receive().unwrap();
         println!("{resp:?}");
