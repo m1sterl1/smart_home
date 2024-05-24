@@ -1,6 +1,6 @@
 use std::net::{TcpListener, UdpSocket};
 use std::thread;
-use network::command;
+use network::command::{self, CommandRequest};
 use network::transport::client::Client;
 use network::{Result,
     network_device::NetworkDevice, 
@@ -12,6 +12,13 @@ use network::{Result,
     };
 use smart_home::devices::*;
 
+/// Send command with client, get and print response
+fn send<C: Client>(client: &mut C, command: CommandRequest) -> Result<()>{
+    client.send(command)?;
+    let response = client.receive();
+    println!("Response {response:?}");
+    Ok(())
+}
 
 
 fn run() -> Result<()>{
@@ -27,11 +34,13 @@ fn run() -> Result<()>{
     let mut tcp_client = TCPClient::new("127.0.0.1:8000")?;
     let mut udp_client = UDPClient::new("127.0.0.1:8001")?;
     
-    tcp_client.send(command::CommandRequest::new().socket("s1000").get_state())?;
-    println!("Response tcp {:?}", tcp_client.receive());
+    send(&mut tcp_client, command::CommandRequest::new().socket("s1000").get_state())?;
+    send(&mut tcp_client, command::CommandRequest::new().socket("s1000").turn_on())?;
+    send(&mut tcp_client, command::CommandRequest::new().socket("s1000").get_state())?;
 
-    udp_client.send(command::CommandRequest::new().socket("s1001").get_state())?;
-    println!("Response udp {:?}", udp_client.receive());
+    send(&mut udp_client, command::CommandRequest::new().socket("s1001").get_state())?;
+    send(&mut udp_client, command::CommandRequest::new().socket("s1001").turn_on())?;
+    send(&mut udp_client, command::CommandRequest::new().socket("s1001").get_state())?;
 
     Ok(())
 }

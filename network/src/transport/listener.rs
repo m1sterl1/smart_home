@@ -32,13 +32,14 @@ impl TCPListener {
     /// Handle "one time" connection
     fn handle(mut con: TcpStream, device: SharedDevice) -> Result<()> {
         // receive CommandRequest
-        let request = Self::receive(&mut con)?;
-        // obtain NetworkDevice
-        let mut device = device.write().unwrap();
-        // process CommandRequest
-        let resp = device.process(request);
-        // send CommandResponse back
-        Self::send(&mut con, resp)?;
+        while let Ok(request) = Self::receive(&mut con){
+            // obtain NetworkDevice
+            let mut device = device.write().unwrap();
+            // process CommandRequest
+            let resp = device.process(request);
+            // send CommandResponse back
+            Self::send(&mut con, resp)?;
+        }
         Ok(())
     }
 
