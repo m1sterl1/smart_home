@@ -104,7 +104,7 @@ impl ThermRequestBuilder<'_> {
 }
 
 impl CommandRequest {
-    pub fn new() -> CommandRequestBuilder {
+    pub fn builder() -> CommandRequestBuilder {
         CommandRequestBuilder
     }
 }
@@ -115,6 +115,7 @@ mod tests {
 
     #[test]
     fn command_request() {
-        let request = CommandRequest::new().socket("socket_123").get_state();
+        let request = CommandRequest::builder().socket("socket_123").get_state();
+        println!("{request:?}")
     }
 }
