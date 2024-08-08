@@ -1,8 +1,7 @@
 use network::{
-    client::{Client, TCPClient},
+    sync::{Client, TCPClient, TCPServer},
     command::CommandRequest,
     network_device::NetworkDevice,
-    server::TCP,
     Result,
 };
 use smart_home::devices::*;
@@ -19,7 +18,7 @@ fn send<C: Client>(client: &mut C, command: CommandRequest) -> Result<()> {
 fn run() -> Result<()> {
     // Starting network device
     let socket1 = Socket::new("s1000");
-    let socket1_tcp: NetworkDevice<TCP> = NetworkDevice::new(socket1, "127.0.0.1:8000")?;
+    let socket1_tcp: NetworkDevice<TCPServer> = NetworkDevice::new(socket1, "127.0.0.1:8000")?;
 
     thread::spawn(move || socket1_tcp.listen());
 

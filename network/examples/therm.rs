@@ -1,8 +1,7 @@
 use network::{
-    client::{Client, UDPClient},
+    sync::{Client, UDPClient, UDPServer},
     command::CommandRequest,
     network_device::NetworkDevice,
-    server::UDP,
     Result,
 };
 use smart_home::devices::*;
@@ -19,7 +18,7 @@ fn send<C: Client>(client: &mut C, command: CommandRequest) -> Result<()> {
 fn run() -> Result<()> {
     // Starting network device
     let therm1 = Thermometer::new("t1000");
-    let therm1_udp: NetworkDevice<UDP> = NetworkDevice::new(therm1, "127.0.0.1:8001")?;
+    let therm1_udp: NetworkDevice<UDPServer> = NetworkDevice::new(therm1, "127.0.0.1:8001")?;
     thread::spawn(move || therm1_udp.listen());
 
     // Init client

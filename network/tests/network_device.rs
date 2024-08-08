@@ -1,8 +1,7 @@
 use network::{
-    client::{Client, TCPClient, UDPClient},
     command::CommandRequest,
     network_device::NetworkDevice,
-    server::{TCP, UDP},
+    sync::{TCPServer, UDPServer, Client, TCPClient, UDPClient},
     Result,
 };
 use smart_home::devices::*;
@@ -20,8 +19,8 @@ fn run() -> Result<()> {
     println!("start");
     let socket1 = Socket::new("s1000");
     let socket2 = Socket::new("s1001");
-    let socket1_tcp: NetworkDevice<TCP> = NetworkDevice::new(socket1, "127.0.0.1:8000")?;
-    let socket2_udp: NetworkDevice<UDP> = NetworkDevice::new(socket2, "127.0.0.1:8001")?;
+    let socket1_tcp: NetworkDevice<TCPServer> = NetworkDevice::new(socket1, "127.0.0.1:8000")?;
+    let socket2_udp: NetworkDevice<UDPServer> = NetworkDevice::new(socket2, "127.0.0.1:8001")?;
 
     thread::spawn(move || socket1_tcp.listen());
     thread::spawn(move || socket2_udp.listen());

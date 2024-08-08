@@ -23,11 +23,11 @@ pub trait ServerAsync: Sized {
     async fn listen(&self, device: SharedDevice) -> Result<()>;
 }
 
-pub struct TCPAsync {
+pub struct TCPServerAsync {
     listener: TcpListener,
 }
 
-impl TCPAsync {
+impl TCPServerAsync {
     /// Handle "one time" connection
     async fn handle(mut con: TcpStream, device: SharedDevice) -> Result<()> {
         // receive CommandRequest
@@ -59,7 +59,7 @@ impl TCPAsync {
     }
 }
 
-impl ServerAsync for TCPAsync {
+impl ServerAsync for TCPServerAsync {
     async fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let listener = TcpListener::bind(addr).await?;
         Ok(Self { listener })
@@ -72,11 +72,11 @@ impl ServerAsync for TCPAsync {
     }
 }
 
-pub struct UDPAsync {
+pub struct UDPServerAsync {
     socket: UdpSocket,
 }
 
-impl UDPAsync {
+impl UDPServerAsync {
     // Receive CommandRequest from socket
     async fn receive(&self) -> Result<(SocketAddr, CommandRequest)> {
         let mut buf = vec![0u8; BUFLEN];
@@ -101,7 +101,7 @@ impl UDPAsync {
     }
 }
 
-impl ServerAsync for UDPAsync {
+impl ServerAsync for UDPServerAsync {
     async fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let socket = UdpSocket::bind(addr).await?;
         Ok(Self { socket })
@@ -115,13 +115,13 @@ impl ServerAsync for UDPAsync {
 
 #[cfg(test)]
 mod tests {
-    use crate::client_async::{ClientAsync, TCPClientAsync, UDPClientAsync};
+    use crate::r#async::{ClientAsync, TCPClientAsync, UDPClientAsync};
     use smart_home::devices::Thermometer;
 
     use super::*;
     #[tokio::test]
     async fn test_tcp_listener() {
-        let listener = TCPAsync::new("127.0.0.1:8008").await.unwrap();
+        let listener = TCPServerAsync::new("127.0.0.1:8008").await.unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let _t = tokio::spawn(async move { listener.listen(device).await });
 
@@ -136,7 +136,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_udp_listener() {
-        let listener = UDPAsync::new("127.0.0.1:8008").await.unwrap();
+        let listener = UDPServerAsync::new("127.0.0.1:8008").await.unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let _t = tokio::spawn(async move { listener.listen(device).await });
 

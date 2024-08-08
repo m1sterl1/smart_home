@@ -6,7 +6,7 @@ use std::sync::{Arc, RwLock};
 
 use crate::{
     device::Device,
-    server::{SharedDevice, Server},
+    sync::{SharedDevice, Server},
     Result,
 };
 

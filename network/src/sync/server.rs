@@ -24,11 +24,11 @@ pub trait Server: Sized {
 /// Single threaded listener
 /// One time connection: each client could use connection
 /// only once
-pub struct TCP {
+pub struct TCPServer {
     listener: TcpListener,
 }
 
-impl TCP {
+impl TCPServer {
     /// Handle "one time" connection
     fn handle(mut con: TcpStream, device: SharedDevice) -> Result<()> {
         // receive CommandRequest
@@ -60,7 +60,7 @@ impl TCP {
     }
 }
 
-impl Server for TCP {
+impl Server for TCPServer {
     fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let listener = TcpListener::bind(addr)?;
         Ok(Self { listener })
@@ -74,11 +74,11 @@ impl Server for TCP {
     }
 }
 
-pub struct UDP {
+pub struct UDPServer {
     socket: UdpSocket,
 }
 
-impl UDP {
+impl UDPServer {
     // Receive CommandRequest from socket
     fn receive(&self) -> Result<(SocketAddr, CommandRequest)> {
         let mut buf = vec![0u8; BUFLEN];
@@ -103,7 +103,7 @@ impl UDP {
     }
 }
 
-impl Server for UDP {
+impl Server for UDPServer {
     fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let socket = UdpSocket::bind(addr)?;
         Ok(Self { socket })
@@ -117,14 +117,14 @@ impl Server for UDP {
 
 #[cfg(test)]
 mod tests {
-    use crate::client::{Client, TCPClient, UDPClient};
+    use crate::sync::{Client, TCPClient, UDPClient};
     use smart_home::devices::Thermometer;
     use std::thread;
 
     use super::*;
     #[test]
     fn test_tcp_listener() {
-        let listener = TCP::new("127.0.0.1:8008").unwrap();
+        let listener = TCPServer::new("127.0.0.1:8008").unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let _t = thread::spawn(move || listener.listen(device));
 
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn test_udp_listener() {
-        let listener = UDP::new("127.0.0.1:8008").unwrap();
+        let listener = UDPServer::new("127.0.0.1:8008").unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let _t = thread::spawn(move || listener.listen(device));
 
