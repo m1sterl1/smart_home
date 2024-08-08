@@ -12,16 +12,16 @@ use crate::{
 };
 
 /// Client which unite TCP and UDP sockets
-pub trait Client {
+pub trait ClientAsync {
     async fn send(&mut self, request: CommandRequest) -> Result<()>;
     async fn receive(&mut self) -> Result<CommandResponse>;
 }
 
-pub struct TCPClient {
+pub struct TCPClientAsync {
     stream: TcpStream,
 }
 
-impl TCPClient {
+impl TCPClientAsync {
     pub async fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let socket = TcpSocket::new_v4()?;
         let addr = get_sock_addr(addr)?;
@@ -30,7 +30,7 @@ impl TCPClient {
     }
 }
 
-impl Client for TCPClient {
+impl ClientAsync for TCPClientAsync {
     async fn send(&mut self, request: CommandRequest) -> Result<()> {
         let buf = serde_json::to_vec(&request)?;
         self.stream.write_all(&buf).await?;
@@ -44,11 +44,11 @@ impl Client for TCPClient {
         Ok(resp)
     }
 }
-pub struct UDPClient {
+pub struct UDPClientAsync {
     socket: UdpSocket,
 }
 
-impl UDPClient {
+impl UDPClientAsync {
     pub async fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let socket = UdpSocket::bind("0.0.0.0:0").await?;
         let addr = get_sock_addr(addr)?;
@@ -57,7 +57,7 @@ impl UDPClient {
     }
 }
 
-impl Client for UDPClient {
+impl ClientAsync for UDPClientAsync {
     async fn send(&mut self, request: CommandRequest) -> Result<()> {
         let buf = serde_json::to_vec(&request)?;
         self.socket.send(&buf).await?;

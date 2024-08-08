@@ -18,16 +18,16 @@ pub type SharedDevice = Arc<RwLock<dyn Device + Send + Sync>>;
 /// Clue for UDP and TCP sockets
 /// Each socket could receive CommandRequest, redirect it to NetworkDevice
 /// and send CommandResponse back
-pub trait Transport: Sized {
+pub trait ServerAsync: Sized {
     async fn new<A: ToSocketAddrs>(addr: A) -> Result<Self>;
     async fn listen(&self, device: SharedDevice) -> Result<()>;
 }
 
-pub struct TCP {
+pub struct TCPAsync {
     listener: TcpListener,
 }
 
-impl TCP {
+impl TCPAsync {
     /// Handle "one time" connection
     async fn handle(mut con: TcpStream, device: SharedDevice) -> Result<()> {
         // receive CommandRequest
@@ -59,7 +59,7 @@ impl TCP {
     }
 }
 
-impl Transport for TCP {
+impl ServerAsync for TCPAsync {
     async fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let listener = TcpListener::bind(addr).await?;
         Ok(Self { listener })
@@ -72,11 +72,11 @@ impl Transport for TCP {
     }
 }
 
-pub struct UDP {
+pub struct UDPAsync {
     socket: UdpSocket,
 }
 
-impl UDP {
+impl UDPAsync {
     // Receive CommandRequest from socket
     async fn receive(&self) -> Result<(SocketAddr, CommandRequest)> {
         let mut buf = vec![0u8; BUFLEN];
@@ -101,7 +101,7 @@ impl UDP {
     }
 }
 
-impl Transport for UDP {
+impl ServerAsync for UDPAsync {
     async fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let socket = UdpSocket::bind(addr).await?;
         Ok(Self { socket })
@@ -115,17 +115,17 @@ impl Transport for UDP {
 
 #[cfg(test)]
 mod tests {
-    use crate::client_async::{Client, TCPClient, UDPClient};
+    use crate::client_async::{ClientAsync, TCPClientAsync, UDPClientAsync};
     use smart_home::devices::Thermometer;
 
     use super::*;
     #[tokio::test]
     async fn test_tcp_listener() {
-        let listener = TCP::new("127.0.0.1:8008").await.unwrap();
+        let listener = TCPAsync::new("127.0.0.1:8008").await.unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let _t = tokio::spawn(async move { listener.listen(device).await });
 
-        let mut s = TCPClient::new("127.0.0.1:8008").await.unwrap();
+        let mut s = TCPClientAsync::new("127.0.0.1:8008").await.unwrap();
         s.send(CommandRequest::builder().therm("123").get_temp())
             .await
             .unwrap();
@@ -136,11 +136,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_udp_listener() {
-        let listener = UDP::new("127.0.0.1:8008").await.unwrap();
+        let listener = UDPAsync::new("127.0.0.1:8008").await.unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let _t = tokio::spawn(async move { listener.listen(device).await });
 
-        let mut s = UDPClient::new("127.0.0.1:8008").await.unwrap();
+        let mut s = UDPClientAsync::new("127.0.0.1:8008").await.unwrap();
         s.send(CommandRequest::builder().therm("123").get_temp())
             .await
             .unwrap();
