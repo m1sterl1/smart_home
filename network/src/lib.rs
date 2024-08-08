@@ -1,5 +1,8 @@
 use std::error::Error;
 
+pub mod client_async;
+pub mod transport_async;
+
 pub mod client;
 pub mod command;
 mod device;

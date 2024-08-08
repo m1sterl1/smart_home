@@ -1,6 +1,6 @@
 /// Provides Device trait, which makes devices capable to handle
-/// CommandReqeuest
-/// Device is implemented by devices from smart home
+/// CommandRequest
+/// Device is implemented for devices from smart home
 use crate::command::{CommandRequest, CommandResponse, RequestType, ResponseType};
 
 use smart_home::devices::{Socket, Thermometer};
