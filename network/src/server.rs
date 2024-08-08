@@ -16,7 +16,7 @@ pub type SharedDevice = Arc<RwLock<dyn Device + Send + Sync>>;
 /// Clue for UDP and TCP sockets
 /// Each socket could receive CommandRequest, redirect it to NetworkDevice
 /// and send CommandResponse back
-pub trait Transport: Sized {
+pub trait Server: Sized {
     fn new<A: ToSocketAddrs>(addr: A) -> Result<Self>;
     fn listen(&self, device: SharedDevice) -> Result<()>;
 }
@@ -60,7 +60,7 @@ impl TCP {
     }
 }
 
-impl Transport for TCP {
+impl Server for TCP {
     fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let listener = TcpListener::bind(addr)?;
         Ok(Self { listener })
@@ -103,7 +103,7 @@ impl UDP {
     }
 }
 
-impl Transport for UDP {
+impl Server for UDP {
     fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
         let socket = UdpSocket::bind(addr)?;
         Ok(Self { socket })

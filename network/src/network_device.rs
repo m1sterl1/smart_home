@@ -6,16 +6,16 @@ use std::sync::{Arc, RwLock};
 
 use crate::{
     device::Device,
-    transport::{SharedDevice, Transport},
+    server::{SharedDevice, Server},
     Result,
 };
 
-pub struct NetworkDevice<T: Transport> {
+pub struct NetworkDevice<T: Server> {
     transport: T,
     device: SharedDevice,
 }
 
-impl<T: Transport> NetworkDevice<T> {
+impl<T: Server> NetworkDevice<T> {
     pub fn new<A: ToSocketAddrs, D: Device + Send + Sync + 'static>(
         device: D,
         addr: A,

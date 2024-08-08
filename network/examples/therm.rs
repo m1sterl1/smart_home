@@ -2,7 +2,7 @@ use network::{
     client::{Client, UDPClient},
     command::CommandRequest,
     network_device::NetworkDevice,
-    transport::UDP,
+    server::UDP,
     Result,
 };
 use smart_home::devices::*;
