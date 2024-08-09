@@ -124,11 +124,11 @@ mod tests {
     use super::*;
     #[test]
     fn test_tcp_listener() {
-        let listener = TCPServer::new("127.0.0.1:8008").unwrap();
+        let listener = TCPServer::new("127.0.0.1:8010").unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let _t = thread::spawn(move || listener.listen(device));
 
-        let mut s = TCPClient::new("127.0.0.1:8008").unwrap();
+        let mut s = TCPClient::new("127.0.0.1:8010").unwrap();
         s.send(CommandRequest::builder().therm("123").get_temp())
             .unwrap();
 
@@ -138,11 +138,11 @@ mod tests {
 
     #[test]
     fn test_udp_listener() {
-        let listener = UDPServer::new("127.0.0.1:8008").unwrap();
+        let listener = UDPServer::new("127.0.0.1:8011").unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let _t = thread::spawn(move || listener.listen(device));
 
-        let mut s = UDPClient::new("127.0.0.1:8008").unwrap();
+        let mut s = UDPClient::new("127.0.0.1:8011").unwrap();
         s.send(CommandRequest::builder().therm("123").get_temp())
             .unwrap();
 

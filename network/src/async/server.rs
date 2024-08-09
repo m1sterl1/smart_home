@@ -125,7 +125,7 @@ mod tests {
     async fn test_tcp_listener() {
         let listener = TCPServerAsync::new("127.0.0.1:8008").await.unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
-        let _t = tokio::spawn(async move { listener.listen(device).await });
+        let t = tokio::spawn(async move { listener.listen(device).await });
 
         let mut s = TCPClientAsync::new("127.0.0.1:8008").await.unwrap();
         s.send(CommandRequest::builder().therm("123").get_temp())
@@ -134,20 +134,23 @@ mod tests {
 
         let resp = s.receive().await.unwrap();
         println!("{resp:?}");
+        t.abort();
     }
 
     #[tokio::test]
     async fn test_udp_listener() {
-        let listener = UDPServerAsync::new("127.0.0.1:8008").await.unwrap();
+        let listener = UDPServerAsync::new("127.0.0.1:8009").await.unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
-        let _t = tokio::spawn(async move { listener.listen(device).await });
-
-        let mut s = UDPClientAsync::new("127.0.0.1:8008").await.unwrap();
+        let t = tokio::spawn(async move { listener.listen(device).await });
+        
+        let mut s = UDPClientAsync::new("127.0.0.1:8009").await.unwrap();
         s.send(CommandRequest::builder().therm("123").get_temp())
             .await
             .unwrap();
 
         let resp = s.receive().await.unwrap();
         println!("{resp:?}");
+        t.abort();
+
     }
 }
