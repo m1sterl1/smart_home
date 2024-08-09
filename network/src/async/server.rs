@@ -19,7 +19,9 @@ pub type SharedDevice = Arc<RwLock<dyn Device + Send + Sync>>;
 /// Each socket could receive CommandRequest, redirect it to NetworkDevice
 /// and send CommandResponse back
 pub trait ServerAsync: Sized {
-    fn new<A: ToSocketAddrs + Send>(addr: A) -> impl std::future::Future<Output = Result<Self>> + Send;
+    fn new<A: ToSocketAddrs + Send>(
+        addr: A,
+    ) -> impl std::future::Future<Output = Result<Self>> + Send;
     fn listen(&self, device: SharedDevice) -> impl std::future::Future<Output = Result<()>> + Send;
 }
 

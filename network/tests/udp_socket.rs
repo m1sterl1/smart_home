@@ -1,6 +1,5 @@
 /// Test udp socket work
 /// Not otus task
-
 use std::net::{ToSocketAddrs, UdpSocket};
 use std::sync::Arc;
 use std::thread::{self, sleep, spawn};

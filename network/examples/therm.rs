@@ -1,6 +1,6 @@
 use network::{
-    sync::{Client, UDPClient, UDPServer, NetworkDevice},
     command::CommandRequest,
+    sync::{Client, NetworkDevice, UDPClient, UDPServer},
     Result,
 };
 use smart_home::devices::*;

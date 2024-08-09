@@ -1,15 +1,10 @@
 /// Implements NetworkDevice structure,
 /// which wraps device from smart_home crate
 /// and different kind of transports
+use std::sync::Arc;
+use tokio::{net::ToSocketAddrs, sync::RwLock};
 
-use std::sync::{Arc};
-use tokio::{sync::RwLock, net::ToSocketAddrs};
-
-use crate::{
-    device::Device,
-    r#async::{SharedDevice},
-    Result,
-};
+use crate::{device::Device, r#async::SharedDevice, Result};
 
 use super::ServerAsync;
 

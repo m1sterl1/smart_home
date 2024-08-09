@@ -1,7 +1,7 @@
 pub mod client;
-pub mod server;
 mod network_device;
+pub mod server;
 
 pub use client::{ClientAsync, TCPClientAsync, UDPClientAsync};
-pub use server::{ServerAsync, TCPServerAsync, UDPServerAsync, SharedDevice};
 pub use network_device::NetworkDeviceAsync;
+pub use server::{ServerAsync, SharedDevice, TCPServerAsync, UDPServerAsync};

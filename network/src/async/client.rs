@@ -13,7 +13,10 @@ use crate::{
 
 /// Client which unite TCP and UDP sockets
 pub trait ClientAsync {
-    fn send(&mut self, request: CommandRequest) -> impl std::future::Future<Output = Result<()>> + Send;
+    fn send(
+        &mut self,
+        request: CommandRequest,
+    ) -> impl std::future::Future<Output = Result<()>> + Send;
     fn receive(&mut self) -> impl std::future::Future<Output = Result<CommandResponse>> + Send;
 }
 

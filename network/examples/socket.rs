@@ -1,6 +1,6 @@
 use network::{
-    sync::{Client, TCPClient, TCPServer, NetworkDevice},
     command::CommandRequest,
+    sync::{Client, NetworkDevice, TCPClient, TCPServer},
     Result,
 };
 use smart_home::devices::*;

@@ -1,11 +1,10 @@
 use network::{
     command::CommandRequest,
-    sync::{TCPServer, UDPServer, Client, TCPClient, UDPClient, NetworkDevice},
+    sync::{Client, NetworkDevice, TCPClient, TCPServer, UDPClient, UDPServer},
     Result,
 };
 use smart_home::devices::*;
 use std::thread;
-
 
 /// Send command with client, get and print response
 fn send<C: Client>(client: &mut C, command: CommandRequest) -> Result<()> {
