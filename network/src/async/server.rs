@@ -142,7 +142,7 @@ mod tests {
         let listener = UDPServerAsync::new("127.0.0.1:8009").await.unwrap();
         let device = Arc::new(RwLock::new(Thermometer::new("123")));
         let t = tokio::spawn(async move { listener.listen(device).await });
-        
+
         let mut s = UDPClientAsync::new("127.0.0.1:8009").await.unwrap();
         s.send(CommandRequest::builder().therm("123").get_temp())
             .await
@@ -151,6 +151,5 @@ mod tests {
         let resp = s.receive().await.unwrap();
         println!("{resp:?}");
         t.abort();
-
     }
 }
