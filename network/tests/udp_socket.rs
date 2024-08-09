@@ -1,3 +1,6 @@
+/// Test udp socket work
+/// Not otus task
+
 use std::net::{ToSocketAddrs, UdpSocket};
 use std::sync::Arc;
 use std::thread::{self, sleep, spawn};
@@ -39,5 +42,4 @@ fn main() {
         s.recv(&mut buf).unwrap();
         println!("Client: got buffer {:?}", buf);
     }
-    // t.join().unwrap().unwrap();
 }
