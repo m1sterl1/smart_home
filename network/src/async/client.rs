@@ -1,6 +1,10 @@
 /// Module provides Client trait and Clients for TCP and UDP protocols
-use std::net::{SocketAddr, ToSocketAddrs};
+use std::{
+    io,
+    net::{SocketAddr, ToSocketAddrs},
+};
 
+use thiserror::Error;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::{TcpSocket, TcpStream, UdpSocket},
@@ -8,8 +12,20 @@ use tokio::{
 
 use crate::{
     command::{CommandRequest, CommandResponse},
-    Result, BUFLEN,
+    BUFLEN,
 };
+
+#[derive(Debug, Error)]
+enum ClientError {
+    #[error("Connection error")]
+    Connection(#[from] io::Error),
+    #[error("Error serializing/deserializing data")]
+    Serialization(#[from] serde_json::Error),
+    #[error("{0}")]
+    Other(String),
+}
+
+type Result<T> = std::result::Result<T, ClientError>;
 
 /// Client which unite TCP and UDP sockets
 pub trait ClientAsync {
@@ -78,5 +94,5 @@ impl ClientAsync for UDPClientAsync {
 fn get_sock_addr<A: ToSocketAddrs>(addr: A) -> Result<SocketAddr> {
     addr.to_socket_addrs()?
         .next()
-        .ok_or("Error converting to socket addr".into())
+        .ok_or(ClientError::Other("Error getting socket address".into()))
 }
