@@ -8,11 +8,11 @@ use tokio::{
 
 use crate::{
     command::{CommandRequest, CommandResponse},
-    errors::ClientError,
+    errors::NetworkError,
     BUFLEN,
 };
 
-type Result<T> = std::result::Result<T, ClientError>;
+type Result<T> = std::result::Result<T, NetworkError>;
 
 /// Client which unite TCP and UDP sockets
 pub trait ClientAsync {
@@ -81,5 +81,5 @@ impl ClientAsync for UDPClientAsync {
 fn get_sock_addr<A: ToSocketAddrs>(addr: A) -> Result<SocketAddr> {
     addr.to_socket_addrs()?
         .next()
-        .ok_or(ClientError::Other("Error getting socket address".into()))
+        .ok_or(NetworkError::Other("Error getting socket address".into()))
 }

@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum ClientError {
+pub enum NetworkError {
     #[error("Connection error")]
     Connection(#[from] std::io::Error),
     #[error("Error serializing/deserializing data")]
