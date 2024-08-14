@@ -1,37 +1,22 @@
-use std::{
-    collections::{HashMap, HashSet},
-    error::Error,
-    fmt::Display,
-};
+use std::collections::{HashMap, HashSet};
+
+use thiserror::Error;
 
 use crate::DeviceInfoProvider;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Error, PartialEq)]
 pub enum SmartHomeError {
-    DupRoom(String),                            // Duplicate room
-    NoRoom(String),                             // No such room
+    #[error("Room {0} already exists")]
+    DupRoom(String), // Duplicate room
+    #[error("No such room {0}")]
+    NoRoom(String), // No such room
+    #[error("Device {device} already exists in the room {room}")]
     DupDevice { room: String, device: String }, // Duplicate device in the room
-    NoDevice { room: String, device: String },  // No device in the room with such name
-    NoRooms,                                    // No rooms in home
+    #[error("No device {device} in the room {room}")]
+    NoDevice { room: String, device: String }, // No device in the room with such name
+    #[error("No rooms in home")]
+    NoRooms, // No rooms in home
 }
-
-impl Display for SmartHomeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::NoRooms => write!(f, "No rooms in home"),
-            Self::NoRoom(r) => write!(f, "No such room {}", r),
-            Self::DupRoom(r) => write!(f, "Room {} already exists", r),
-            Self::DupDevice { room, device } => {
-                write!(f, "Device {} already exists in the room {}", device, room)
-            }
-            Self::NoDevice { room, device } => {
-                write!(f, "No device {} in the room {}", device, room)
-            }
-        }
-    }
-}
-
-impl Error for SmartHomeError {}
 
 // Unique room name with unique devices
 type Rooms = HashMap<String, HashSet<String>>;
