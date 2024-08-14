@@ -4,11 +4,9 @@
 use std::sync::Arc;
 use tokio::{net::ToSocketAddrs, sync::RwLock};
 
-use crate::{device::Device, errors::NetworkError, r#async::SharedDevice};
+use crate::{device::Device, r#async::SharedDevice, Result};
 
 use super::ServerAsync;
-
-type Result<T> = std::result::Result<T, NetworkError>;
 
 pub struct NetworkDeviceAsync<T: ServerAsync> {
     transport: T,

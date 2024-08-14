@@ -9,10 +9,8 @@ use tokio::{
 use crate::{
     command::{CommandRequest, CommandResponse},
     errors::NetworkError,
-    BUFLEN,
+    Result, BUFLEN,
 };
-
-type Result<T> = std::result::Result<T, NetworkError>;
 
 /// Client which unite TCP and UDP sockets
 pub trait ClientAsync {

@@ -4,13 +4,11 @@
 use std::net::ToSocketAddrs;
 use std::sync::{Arc, RwLock};
 
-use crate::errors::NetworkError;
 use crate::{
     device::Device,
     sync::{Server, SharedDevice},
+    Result,
 };
-
-type Result<T> = std::result::Result<T, NetworkError>;
 
 pub struct NetworkDevice<T: Server> {
     transport: T,

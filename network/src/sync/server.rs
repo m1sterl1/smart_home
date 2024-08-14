@@ -8,11 +8,8 @@ use std::{
 use crate::{
     command::{CommandRequest, CommandResponse},
     device::Device,
-    errors::NetworkError,
-    BUFLEN,
+    Result, BUFLEN,
 };
-
-type Result<T> = std::result::Result<T, NetworkError>;
 
 pub type SharedDevice = Arc<RwLock<dyn Device + Send + Sync>>;
 
