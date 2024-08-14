@@ -1,4 +1,6 @@
-use std::{error::Error, fmt::Display};
+use std::fmt::Display;
+
+use thiserror::Error;
 
 use super::utils::RandomValue;
 
@@ -73,18 +75,14 @@ impl Display for SocketState {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum SocketError {
     // Different error types
+    #[error("DeviceErrorState")]
+    DeviceErrorState,
+    #[error("Max voltage value 250V excceed")]
+    MaxVoltageExceed,
 }
-
-impl Display for SocketError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Socket error")
-    }
-}
-
-impl Error for SocketError {}
 
 #[cfg(test)]
 mod tests {
