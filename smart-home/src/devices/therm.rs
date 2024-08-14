@@ -1,4 +1,6 @@
-use std::{error::Error, fmt::Display};
+use std::fmt::Display;
+
+use thiserror::Error;
 
 use super::utils::RandomValue;
 
@@ -62,16 +64,13 @@ impl Display for ThermometerState {
     }
 }
 
-#[derive(Debug)]
-pub enum ThermometerError {}
-
-impl Display for ThermometerError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Thermometer device error")
-    }
+#[derive(Error, Debug)]
+pub enum ThermometerError {
+    #[error("Temperature out of range")]
+    TemperatureOutOfRange,
+    #[error("Low voltage")]
+    LowVoltage,
 }
-
-impl Error for ThermometerError {}
 
 #[cfg(test)]
 mod tests {
