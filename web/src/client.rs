@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use reqwest::{Client, IntoUrl, Url};
 
 use crate::Result;
