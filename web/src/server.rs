@@ -84,19 +84,19 @@ fn create_provider() -> impl DeviceInfoProvider {
 
     let mut info_provider = DeviceSource::new();
     info_provider
-        .add_device("Socket", "guestroom", Box::new(socket) as Box<dyn Display>)
+        .add_device("Socket", "Guestroom", Box::new(socket) as Box<dyn Display>)
         .unwrap();
     info_provider
         .add_device(
             "Thermometer",
-            "guestroom",
+            "Bathroom",
             Box::new(thermo) as Box<dyn Display>,
         )
         .unwrap();
     info_provider
 }
 
-async fn run() -> std::io::Result<()> {
+pub async fn server_run(addr: &str) -> std::io::Result<()> {
     let smart_home = web::Data::new(Mutex::new(SmartHome::new("Web test")));
     HttpServer::new(move || {
         let info_provider = web::Data::new(create_provider());
@@ -111,7 +111,7 @@ async fn run() -> std::io::Result<()> {
             .service(devices_del)
             .service(report)
     })
-    .bind("127.0.0.1:8080")?
+    .bind(addr)?
     .run()
     .await
 }
@@ -120,13 +120,13 @@ async fn run() -> std::io::Result<()> {
 mod tests {
     use super::*;
     use reqwest::Client;
-    use std::{error::Error, io, time::Duration};
+    use std::{error::Error, time::Duration};
 
     type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
     #[actix_web::test]
     async fn test_run() -> Result<()> {
-        actix_web::rt::spawn(run());
+        actix_web::rt::spawn(server_run("127.0.0.1:8080"));
         actix_web::rt::time::sleep(Duration::from_secs(1)).await;
         let client = Client::new();
 
