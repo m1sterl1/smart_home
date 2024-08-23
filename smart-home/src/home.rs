@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use thiserror::Error;
+use serde::Serialize;
 
 use crate::DeviceInfoProvider;
 
@@ -16,6 +17,14 @@ pub enum SmartHomeError {
     NoDevice { room: String, device: String }, // No device in the room with such name
     #[error("No rooms in home")]
     NoRooms, // No rooms in home
+}
+
+impl Serialize for SmartHomeError{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer {
+        serializer.serialize_str(&self.to_string())
+    }
 }
 
 // Unique room name with unique devices
