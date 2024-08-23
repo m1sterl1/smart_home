@@ -1,0 +1,12 @@
+[package]
+name = "web"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+smart-home = {path = "../smart-home"}
+actix-web = "4.9.0"
+serde = { version = "1.0.208", features = ["derive"] }
+serde_json = "1.0.125"
+reqwest = "0.12.7"
+
