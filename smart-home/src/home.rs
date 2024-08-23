@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use thiserror::Error;
 use serde::Serialize;
+use thiserror::Error;
 
 use crate::DeviceInfoProvider;
 
@@ -19,10 +19,11 @@ pub enum SmartHomeError {
     NoRooms, // No rooms in home
 }
 
-impl Serialize for SmartHomeError{
+impl Serialize for SmartHomeError {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
+    where
+        S: serde::Serializer,
+    {
         serializer.serialize_str(&self.to_string())
     }
 }
