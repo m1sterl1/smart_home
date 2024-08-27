@@ -1,0 +1,8 @@
+[package]
+name = "gui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+smart-home = {path="../smart-home"}
+iced = "0.12.1"

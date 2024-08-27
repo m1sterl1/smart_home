@@ -1,5 +1,5 @@
 [workspace]
 members = [
 	"smart-home",
-	"network", "web",
+	"network", "web", "gui",
 ]
