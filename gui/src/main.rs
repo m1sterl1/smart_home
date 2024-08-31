@@ -1,8 +1,10 @@
+use std::ops::Sub;
 use std::process::exit;
+use std::sync::{Arc, Mutex, RwLock};
 
-use iced::widget::{button, column, row, text, text_input, Column, Row};
+use iced::widget::{button, column, row, text, text_input, Column, Row, };
+use iced::{Task, Subscription, time};
 
-use iced::Task;
 use network::{command::CommandRequest};
 use network::sync::{Client, NetworkDevice, Server, TCPClient, TCPServer};
 use smart_home::devices::Socket;
@@ -19,23 +21,29 @@ pub fn main() -> iced::Result {
         exit(1)
     });
     iced::application("Net Socket", SocketUI::update, SocketUI::view)
+    .subscription(SocketUI::subscribtion)
     .run_with(||(SocketUI::new(), Task::none()))
 }
 
 fn spawn_server() -> network::errors::Result<()>{
-    let socket1 = Socket::new("s1000");
+    let socket1 = Socket::new(SOCKET_ID);
     let socket1_tcp: NetworkDevice<TCPServer> = NetworkDevice::new(socket1, CONNECTION_STRING)?;
     std::thread::spawn(move || socket1_tcp.listen());
-    println!("Server spawned");
     Ok(())
-
 }
+
+fn parse_response(response: &str) -> Option<&str>{
+    response.rsplit_once(" ")
+    .map(|(_, p)|p)
+}
+
+type SocketClient = Arc<Mutex<TCPClient>>;
 
 #[derive(Default)]
 struct SocketUI {
-    client: Option<TCPClient>,
+    client: Option<SocketClient>,
     state: SocketState,
-    power: u32,
+    power: String,
     status: String,
     connection_string: String,
 }
@@ -53,7 +61,7 @@ enum Message {
     Connect(String),
     TurnOn,
     TurnOff,
-    Power(u32),
+    Power(String),
     InputChanged(String),
 }
 
@@ -62,7 +70,7 @@ impl SocketUI {
         Self { 
             client: None, 
             state: SocketState::Disconnected, 
-            power: 0, 
+            power: "0W".into(), 
             status: "".into(),
             connection_string: CONNECTION_STRING.into() 
         }
@@ -70,26 +78,23 @@ impl SocketUI {
     fn update(&mut self, message: Message) {
         match message {
             Message::Connect(a) => {
-                println!("{a}");
                 match TCPClient::new(a) {
                 Ok(client) => {
-                    println!("ok");
-                    self.client = Some(client);
+                    self.client = Some(Arc::new(Mutex::new(client)));
                     self.state = SocketState::Off;
                     self.status = "Connected".into();
                 }
                 Err(e) => {
-                    println!("{e}");
                     self.status = e.to_string();
                 }
             }
             },
             Message::TurnOn => {
-                self.client.as_mut().map(|client| {
-                    match client.send(CommandRequest::builder().socket(SOCKET_ID).turn_on()) {
-                        Ok(_) => {
+                self.client.as_ref().map(|client| {
+                    match client.lock().unwrap().get(CommandRequest::builder().socket(SOCKET_ID).turn_on()) {
+                        Ok(r) => {
                             self.state = SocketState::On;
-                            self.status = "State on".into();
+                            self.status = format!("{r:?}");
                         },
                         Err(e) => {
                             self.status = e.to_string();
@@ -98,11 +103,12 @@ impl SocketUI {
                 });
             }
             Message::TurnOff => {
-                self.client.as_mut().map(|client| {
-                    match client.send(CommandRequest::builder().socket(SOCKET_ID).turn_off()) {
-                        Ok(_) => {
+                self.client.as_ref().map(|client| {
+                    match client.lock().unwrap().get(CommandRequest::builder().socket(SOCKET_ID).turn_off()) {
+                        Ok(r) => {
                             self.state = SocketState::Off;
-                            self.power = 0;
+                            self.power = "0W".into();
+                            self.status = format!("{r:?}");
                         }
                         Err(e) => self.status = e.to_string(),
                     }
@@ -128,6 +134,31 @@ impl SocketUI {
         ]
     }
 
+    fn subscribtion(&self) -> Subscription<Message>{
+        match self.state{
+            SocketState::Disconnected => Subscription::none(),
+            SocketState::Off => Subscription::none(),
+            SocketState::On => {
+                let client = self.client.clone().unwrap();
+                time::every(time::Duration::from_secs(1))
+                .map(move |_|{
+                    let resp = client
+                    .lock()
+                    .unwrap()
+                    .get(CommandRequest::builder().socket(SOCKET_ID).get_state());
+                    if let Ok(resp) = resp{
+                        if let Some(resp) = resp.success(){
+                            if let Some(power) = parse_response(&resp){
+                                return Message::Power(power.into())
+                            }
+                        }
+                    }
+                    Message::Power("0W".into())
+                })
+            }
+        }
+    }
+
     fn connection_row(&self) -> Row<Message> {
         // text input
         let text_input = text_input(CONNECTION_STRING, &self.connection_string)
@@ -148,13 +179,14 @@ impl SocketUI {
             SocketState::On => {
                 row![
                     button("Turn Off").on_press(Message::TurnOff),
-                    text(format!("{}w", self.power))
+                    
+                    text(format!("{}", self.power))
                 ]
             },
             SocketState::Off => {
                 row![
                     button("Turn On").on_press(Message::TurnOn),
-                    text(format!("{}w", self.power))
+                    text(format!("{}", self.power))
                 ]
             }
         }
