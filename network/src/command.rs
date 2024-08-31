@@ -45,6 +45,13 @@ impl CommandResponse {
             response,
         }
     }
+    pub fn success(&self) -> Option<String>{
+        if let ResponseType::Success(r) = &self.response{
+            Some(r.clone())
+        } else {
+            None
+        }
+    }
 }
 
 impl From<CommandResponse> for Vec<u8> {
