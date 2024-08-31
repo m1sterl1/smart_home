@@ -13,6 +13,10 @@ use crate::{
 pub trait Client {
     fn send(&mut self, request: CommandRequest) -> Result<()>;
     fn receive(&mut self) -> Result<CommandResponse>;
+    fn get(&mut self, request: CommandRequest) -> Result<CommandResponse>{
+        self.send(request)?;
+        self.receive()
+    }
 }
 
 pub struct TCPClient {
@@ -28,6 +32,7 @@ impl TCPClient {
 
 impl Client for TCPClient {
     fn send(&mut self, request: CommandRequest) -> Result<()> {
+        println!("Command req {request:?}");
         let buf = serde_json::to_vec(&request)?;
         self.stream.write_all(&buf)?;
         Ok(())
@@ -37,6 +42,7 @@ impl Client for TCPClient {
         let mut buf = vec![0; BUFLEN];
         let size = self.stream.read(&mut buf)?;
         let resp: CommandResponse = serde_json::from_slice(&buf[0..size])?;
+        println!("Command response {resp:?}");
         Ok(resp)
     }
 }
