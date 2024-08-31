@@ -45,8 +45,8 @@ impl CommandResponse {
             response,
         }
     }
-    pub fn success(&self) -> Option<String>{
-        if let ResponseType::Success(r) = &self.response{
+    pub fn success(&self) -> Option<String> {
+        if let ResponseType::Success(r) = &self.response {
             Some(r.clone())
         } else {
             None

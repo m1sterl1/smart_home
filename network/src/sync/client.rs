@@ -13,7 +13,7 @@ use crate::{
 pub trait Client {
     fn send(&mut self, request: CommandRequest) -> Result<()>;
     fn receive(&mut self) -> Result<CommandResponse>;
-    fn get(&mut self, request: CommandRequest) -> Result<CommandResponse>{
+    fn get(&mut self, request: CommandRequest) -> Result<CommandResponse> {
         self.send(request)?;
         self.receive()
     }
