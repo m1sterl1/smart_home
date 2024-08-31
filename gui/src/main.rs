@@ -1,16 +1,17 @@
 use std::process::exit;
 use std::sync::{Arc, Mutex};
 
+use iced::alignment::Vertical::Bottom;
 use iced::widget::{button, column, row, text, text_input, Column, Row};
-use iced::{time, Subscription, Task};
+use iced::Alignment::Center;
+use iced::{time, Size, Subscription, Task};
 
 use network::command::CommandRequest;
-use network::sync::{Client, NetworkDevice, Server, TCPClient, TCPServer};
+use network::sync::{Client, NetworkDevice, TCPClient, TCPServer};
 use smart_home::devices::Socket;
 
 const CONNECTION_STRING: &str = "127.0.0.1:8080";
 const TEXT_INPUT_SIZE: f32 = 250.0;
-const BUTTON_SIZE: f32 = 100.0;
 const SOCKET_ID: &str = "id";
 
 pub fn main() -> iced::Result {
@@ -21,6 +22,7 @@ pub fn main() -> iced::Result {
     });
     iced::application("Net Socket", SocketUI::update, SocketUI::view)
         .subscription(SocketUI::subscribtion)
+        .window_size(Size::new(500.0, 200.0))
         .run_with(|| (SocketUI::new(), Task::none()))
 }
 
@@ -69,7 +71,7 @@ impl SocketUI {
             client: None,
             state: SocketState::Disconnected,
             power: "0W".into(),
-            status: "".into(),
+            status: "Disconnected".into(),
             connection_string: CONNECTION_STRING.into(),
         }
     }
@@ -86,37 +88,37 @@ impl SocketUI {
                 }
             },
             Message::TurnOn => {
-                self.client.as_ref().map(|client| {
+                if let Some(client) = self.client.as_ref() {
                     match client
                         .lock()
                         .unwrap()
                         .get(CommandRequest::builder().socket(SOCKET_ID).turn_on())
                     {
-                        Ok(r) => {
+                        Ok(_) => {
                             self.state = SocketState::On;
-                            self.status = format!("{r:?}");
+                            self.status = "Status: On".into();
                         }
                         Err(e) => {
                             self.status = e.to_string();
                         }
                     }
-                });
+                };
             }
             Message::TurnOff => {
-                self.client.as_ref().map(|client| {
+                if let Some(client) = self.client.as_ref() {
                     match client
                         .lock()
                         .unwrap()
                         .get(CommandRequest::builder().socket(SOCKET_ID).turn_off())
                     {
-                        Ok(r) => {
+                        Ok(_) => {
                             self.state = SocketState::Off;
                             self.power = "0W".into();
-                            self.status = format!("{r:?}");
+                            self.status = "Status: Off".into();
                         }
                         Err(e) => self.status = e.to_string(),
                     }
-                });
+                };
             }
             Message::Power(p) => {
                 self.power = p;
@@ -130,12 +132,13 @@ impl SocketUI {
     fn view(&self) -> Column<Message> {
         column![
             // connection row
-            self.connection_row(),
+            self.connection_view().padding(30),
             // control row
-            self.control_row(),
+            self.control_view(),
             // status
-            text(&self.status)
+            text(&self.status).align_y(Bottom)
         ]
+        .align_x(Center)
     }
 
     fn subscribtion(&self) -> Subscription<Message> {
@@ -162,7 +165,7 @@ impl SocketUI {
         }
     }
 
-    fn connection_row(&self) -> Row<Message> {
+    fn connection_view(&self) -> Row<Message> {
         // text input
         let text_input = text_input(CONNECTION_STRING, &self.connection_string)
             .on_input(Message::InputChanged)
@@ -176,19 +179,19 @@ impl SocketUI {
         row![text_input, button]
     }
 
-    fn control_row(&self) -> Row<Message> {
+    fn control_view(&self) -> Column<Message> {
         match self.state {
-            SocketState::Disconnected => Row::new(),
+            SocketState::Disconnected => Column::new(),
             SocketState::On => {
-                row![
+                column![
                     button("Turn Off").on_press(Message::TurnOff),
-                    text(self.power.to_string())
+                    text(self.power.to_string()).size(20)
                 ]
             }
             SocketState::Off => {
-                row![
+                column![
                     button("Turn On").on_press(Message::TurnOn),
-                    text(self.power.to_string())
+                    text(self.power.to_string()).size(20)
                 ]
             }
         }
