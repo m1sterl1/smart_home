@@ -7,15 +7,15 @@ use super::utils::RandomValue;
 type Result<T> = std::result::Result<T, SocketError>;
 
 pub struct Socket {
-    id: String,         // description
+    id: String,         // id
     state: SocketState, // current state
 }
 
 impl Socket {
-    pub fn new(desc: &str) -> Self {
+    pub fn new(id: &str) -> Self {
         // Random basic value of power consumption
         Self {
-            id: desc.to_string(),
+            id: id.to_string(),
             state: SocketState::Off,
         }
     }
@@ -34,7 +34,7 @@ impl Socket {
         Ok(())
     }
     /// Returns current power consumption (emulation)
-    pub fn power_consuption(&self) -> f32 {
+    pub fn power_consumption(&self) -> f32 {
         match self.state {
             SocketState::On => Socket::choose(),
             SocketState::Off => 0.0,
@@ -49,7 +49,7 @@ impl Display for Socket {
             f,
             "{}, power consumption {:.1}W",
             self.state,
-            self.power_consuption()
+            self.power_consumption()
         )
     }
 }

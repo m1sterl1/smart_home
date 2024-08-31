@@ -4,5 +4,5 @@ mod socket;
 mod therm;
 mod utils;
 
-pub use socket::{Socket, SocketState};
-pub use therm::{Thermometer, ThermometerState};
+pub use socket::{Socket, SocketState, SocketError};
+pub use therm::{Thermometer, ThermometerState, ThermometerError};
