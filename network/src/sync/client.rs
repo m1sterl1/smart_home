@@ -32,7 +32,6 @@ impl TCPClient {
 
 impl Client for TCPClient {
     fn send(&mut self, request: CommandRequest) -> Result<()> {
-        println!("Command req {request:?}");
         let buf = serde_json::to_vec(&request)?;
         self.stream.write_all(&buf)?;
         Ok(())
@@ -42,7 +41,6 @@ impl Client for TCPClient {
         let mut buf = vec![0; BUFLEN];
         let size = self.stream.read(&mut buf)?;
         let resp: CommandResponse = serde_json::from_slice(&buf[0..size])?;
-        println!("Command response {resp:?}");
         Ok(resp)
     }
 }
