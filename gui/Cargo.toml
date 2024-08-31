@@ -5,4 +5,6 @@ edition = "2021"
 
 [dependencies]
 smart-home = {path="../smart-home"}
-iced = "0.12.1"
+network = {path="../network"}
+
+iced = { git="https://github.com/iced-rs/iced.git", branch = "wgpu-22.0"}
