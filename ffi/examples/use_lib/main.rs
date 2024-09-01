@@ -1,8 +1,8 @@
 mod libload;
 
-use libload::{SocketWrapper, Result};
+use libload::{Result, SocketWrapper};
 
-fn main() -> Result<()>{
+fn main() -> Result<()> {
     let socket = SocketWrapper::new("socketid")?;
     println!("Power consumption {}w", socket.power()?);
     println!("Turn on socket");
