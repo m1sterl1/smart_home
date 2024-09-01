@@ -1,9 +1,10 @@
+#![allow(clippy::missing_safety_doc, unused)]
 use smart_home::devices::{self, Socket};
 use std::ffi::{c_char, c_float, c_void, CStr};
 use std::fmt::Debug;
 
 #[repr(transparent)]
-struct Str(*const c_char);
+pub struct Str(*const c_char);
 
 // Errors
 
@@ -18,7 +19,7 @@ impl From<devices::SocketError> for SocketError {
 
 #[repr(u32)]
 #[derive(Debug, PartialEq)]
-enum SocketError {
+pub enum SocketError {
     NoError = 0,
     Param,
     DeviceErrorState,
@@ -29,7 +30,7 @@ enum SocketError {
 
 #[repr(transparent)]
 #[derive(Clone, Copy)]
-struct SocketHandle(*mut c_void);
+pub struct SocketHandle(*mut c_void);
 
 impl SocketHandle {
     fn from_socket(socket: Socket) -> Self {
@@ -99,6 +100,7 @@ pub unsafe extern "C" fn power(mut handle: SocketHandle, power: *mut c_float) ->
 mod tests {
 
     use super::*;
+    use std::ffi::CString;
 
     fn print_memory<T>(desc: &str, reference: &T, number: isize) {
         println!("{desc}");
